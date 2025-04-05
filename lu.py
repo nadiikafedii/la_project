@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.linalg as la
-import time
 np.random.seed(42)
 def lu_decomposition(A):
     """L and U"""
@@ -54,11 +53,7 @@ matrix_sizes = [3, 5, 10, 100]
 
 for size in matrix_sizes:
     A = generate_random_matrix(size)
-    start_time = time.time()
     A_inv = inverse_via_lu(A)
-    end_time = time.time()
-    execution_time = end_time - start_time
-    print(f"\nSize {size}x{size}: Execution time = {execution_time:.6f} seconds")
     print(f"First 3 rows of inverse matrix {size}x{size}:")
     for row in A_inv[:3]:
         print(row)
