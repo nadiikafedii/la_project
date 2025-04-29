@@ -1,5 +1,7 @@
 import time
 import numpy as np
+np.random.seed(42)
+
 def gauss_jordan_inverse(matrix):
     n = len(matrix)
     augmented = [row[:] + [float(i == j) for j in range(n)] for i, row in enumerate(matrix)]
@@ -30,7 +32,7 @@ for row in inv_A:
 
 def generate_random_matrix(n):
     return np.random.uniform(1, 10, (n, n)).tolist()
-matrix_sizes = [3, 5, 10, 100]
+matrix_sizes = [3, 5, 10, 100, 1000]
 
 for size in matrix_sizes:
     A = generate_random_matrix(size)

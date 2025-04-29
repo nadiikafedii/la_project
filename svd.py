@@ -1,5 +1,6 @@
 import numpy as np
 import time
+np.random.seed(42)
 
 def transpose(matrix):
     return [list(row) for row in zip(*matrix)]
@@ -104,7 +105,7 @@ def generate_random_matrix(n):
     return np.random.randint(1, 10, (n, n)).tolist()
 
 
-matrix_sizes = [3, 5, 10, 100]
+matrix_sizes = [3, 5, 10]
 
 for size in matrix_sizes:
     A = generate_random_matrix(size)

@@ -1,5 +1,6 @@
 import numpy as np
 import time
+np.random.seed(42)
 
 
 def svd_inverse(A):

@@ -1,6 +1,6 @@
 import time
 import numpy as np
-
+np.random.seed(42)
 def identity_matrix(n):
     return [[1 if i == j else 0 for j in range(n)] for i in range(n)]
 
@@ -13,6 +13,9 @@ def transpose(M):
 def dot(u, v):
     return sum([u[i] * v[i] for i in range(len(u))])
 
+def norm(v):
+    return sum([v[i] * v[i] for i in range(len(v))]) ** 0.5
+
 def matmul(A, B):
     result = zeros_matrix(len(A), len(B[0]))
     for i in range(len(A)):
@@ -20,37 +23,37 @@ def matmul(A, B):
             result[i][j] = sum([A[i][k] * B[k][j] for k in range(len(B))])
     return result
 
-def norm(v):
-    return sum([v[i] * v[i] for i in range(len(v))]) ** 0.5
+def scalar_multiply(scalar, v):
+    return [scalar * vi for vi in v]
 
-def sign(x):
-    return -1 if x < 0 else 1
+def vector_subtract(u, v):
+    return [u[i] - v[i] for i in range(len(u))]
 
-def householder_reflection(A):
-    m = len(A)
-    n = len(A[0])
-    Q = identity_matrix(m)
-    R = [row[:] for row in A]
-
-    for i in range(n):
-        x = [R[j][i] for j in range(i, m)]
-        norm_x = norm(x)
-        if norm_x == 0:
-            continue
-        s = sign(x[0])
-        u1 = x[0] + s * norm_x
-        v = [u1] + x[1:]
-        v_norm = norm(v)
-        v = [vi / v_norm for vi in v]
-
-        H_i = identity_matrix(m)
-        for r in range(i, m):
-            for c in range(i, m):
-                H_i[r][c] -= 2 * v[r - i] * v[c - i]
-
-        R = matmul(H_i, R)
-        Q = matmul(Q, H_i)
-
+def gram_schmidt_qr(A):
+    n = len(A)
+    m = len(A[0])
+    Q = []
+    R = zeros_matrix(m, m)
+    
+    for j in range(m):
+        a_j = [A[i][j] for i in range(n)]
+        q_j = a_j[:]
+        
+        for i in range(j):
+            q_i = [Q[row][i] for row in range(n)]
+            R[i][j] = dot(q_i, a_j)
+            proj = scalar_multiply(R[i][j], q_i)
+            q_j = vector_subtract(q_j, proj)
+        
+        R[j][j] = norm(q_j)
+        q_j = [val / R[j][j] for val in q_j]
+        
+        if j == 0:
+            Q = [[val] for val in q_j]
+        else:
+            for row in range(n):
+                Q[row].append(q_j[row])
+                
     return Q, R
 
 def upper_tri_inverse(R, tol=1e-6): 
@@ -59,7 +62,6 @@ def upper_tri_inverse(R, tol=1e-6):
 
     for i in range(n - 1, -1, -1):
         if abs(R[i][i]) < tol: 
-            print(f"Warning: near-zero value on diagonal at index {i}. Using regularization.")
             R_inv[i][i] = 1 / (R[i][i] if abs(R[i][i]) >= tol else tol)
         else:
             R_inv[i][i] = 1 / R[i][i]
@@ -72,17 +74,16 @@ def upper_tri_inverse(R, tol=1e-6):
 
     return R_inv
 
-
-
 def qr_inverse(A):
-    Q, R = householder_reflection(A)
+    Q, R = gram_schmidt_qr(A)
     R_inv = upper_tri_inverse(R)
     Q_T = transpose(Q)
     return matmul(R_inv, Q_T)
 
+
 def generate_random_matrix(n):
     return np.random.uniform(1, 10, (n, n)).tolist()
-matrix_sizes = [3, 5, 10, 100]
+matrix_sizes = [100, 1000, 10000]
 
 for size in matrix_sizes:
     A = generate_random_matrix(size)
